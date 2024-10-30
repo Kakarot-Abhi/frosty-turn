@@ -1,0 +1,4 @@
+# Ignore files not needed in the image
+.dockerignore
+.git
+.gitignore
