@@ -4,7 +4,10 @@ FROM ubuntu:20.04
 # Install Coturn
 RUN apt-get update && \
     apt-get install -y coturn && \
-    apt-get clean
+    apt-get clean && \
+    mkdir -p /var/lib/turn && \
+    chown -R turnserver:turnserver /var/lib/turn && \
+    chmod -R 755 /var/lib/turn
 
 # Set the TURN server name as an environment variable
 ENV TURN_SERVER_NAME=frosty-turn
