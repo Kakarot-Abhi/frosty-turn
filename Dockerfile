@@ -3,7 +3,7 @@ FROM ubuntu:20.04
 
 # Install Coturn and necessary packages
 RUN apt-get update && \
-    apt-get install -y coturn curl && \
+    apt-get install -y coturn curl openssl && \
     apt-get clean && \
     mkdir -p /var/lib/turn && \
     chown -R turnserver:turnserver /var/lib/turn && \
@@ -11,6 +11,12 @@ RUN apt-get update && \
 
 # Set the TURN server name as an environment variable
 ENV TURN_SERVER_NAME=frosty-turn
+
+# Generate self-signed certificates
+RUN openssl req -new -x509 -days 365 -nodes \
+    -out /etc/turn_server_cert.pem \
+    -keyout /etc/turn_server_pkey.pem \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=frosty-turn.onrender.com"
 
 # Copy the TURN server configuration file
 COPY turnserver.conf /etc/turnserver.conf
