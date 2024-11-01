@@ -1,16 +1,19 @@
-# Use the official Coturn image
-FROM coturn/coturn AS coturn-base
+# Use a base image with Debian
+FROM debian:latest
+
+# Install necessary packages
+RUN apt-get update && apt-get install -y \
+    coturn \
+    certbot \
+    sudo
 
 # Set the user to root
 USER root
 
-# Create an intermediate image for scripts
-FROM coturn-base AS scripts-base
+# Copy the Coturn configuration file
+COPY ./turnserver.conf /etc/coturn/turnserver.conf
 
-# Install Certbot
-RUN apt-get update && apt-get install -y certbot
-
-# Create the scripts directory and add the start-coturn.sh script
+# Create the scripts directory
 RUN mkdir -p /scripts
 
 # Generate the start-coturn.sh script
@@ -25,18 +28,6 @@ turnserver -c /etc/coturn/turnserver.conf' > /scripts/start-coturn.sh
 # Make the script executable
 RUN chmod +x /scripts/start-coturn.sh
 
-# Final stage
-FROM coturn/coturn
-
-# Set the user to root
-USER root
-
-# Copy the Coturn configuration file
-COPY ./turnserver.conf /etc/coturn/turnserver.conf
-
-# Copy the scripts from the intermediate stage
-COPY --from=scripts-base /scripts/ /scripts/
-
 # Set the necessary volumes
 VOLUME /etc/letsencrypt/ /var/log/coturn/
 
@@ -44,4 +35,4 @@ VOLUME /etc/letsencrypt/ /var/log/coturn/
 EXPOSE 80 443
 
 # Start the Coturn server using the generated script
-CMD ["/scripts/start-coturn.sh"]
+CMD ["/bin/bash", "/scripts/start-coturn.sh"]
