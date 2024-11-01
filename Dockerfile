@@ -7,6 +7,9 @@ USER root
 # Create an intermediate image for scripts
 FROM coturn-base AS scripts-base
 
+# Install Certbot
+RUN apt-get update && apt-get install -y certbot
+
 # Create the scripts directory and add the start-coturn.sh script
 RUN mkdir -p /scripts
 
