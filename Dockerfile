@@ -1,16 +1,16 @@
 # Use the official Coturn Docker image
 FROM coturn/coturn:latest
 
-# Switch to root to install curl
-USER root
-
-# Install curl for external IP detection
-RUN apt-get update && \
-    apt-get install -y curl && \
-    apt-get clean
-
-# Switch back to the default user (if needed by your Coturn setup)
-USER coturn
+## Switch to root to install curl
+#USER root
+#
+## Install curl for external IP detection
+#RUN apt-get update && \
+#    apt-get install -y curl && \
+#    apt-get clean
+#
+## Switch back to the default user (if needed by your Coturn setup)
+#USER coturn
 
 # Copy your TURN server configuration file
 COPY turnserver.conf /etc/turnserver.conf
@@ -24,5 +24,5 @@ EXPOSE 443/tcp
 ENV DETECT_EXTERNAL_IP=yes
 ENV DETECT_RELAY_IP=yes
 
-# Start the TURN server with logging to stdout
-ENTRYPOINT ["turnserver", "-c", "/etc/turnserver.conf", "--log-file=stdout"]
+# Start the TURN server with dynamically fetched external IP
+ENTRYPOINT ["sh", "-c", "turnserver -c /etc/turnserver.conf"]
