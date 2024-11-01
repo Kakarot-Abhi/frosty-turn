@@ -20,10 +20,10 @@ RUN mkdir -p /scripts
 RUN echo '#!/bin/bash\n\
 \n\
 # Start Certbot to generate/renew certificates\n\
-certbot certonly --standalone --preferred-challenges http -d frosty-turn.onrender.com --agree-tos --email your-email@example.com --non-interactive\n\
+certbot certonly --standalone --preferred-challenges http -d frosty-turn.onrender.com --agree-tos --email kakaroto79333@gmail.com --non-interactive\n\
 \n\
 # Start the Coturn server\n\
-turnserver -c /etc/coturn/turnserver.conf' > /scripts/start-coturn.sh
+turnserver -c /etc/coturn/turnserver.conf --no-cli' > /scripts/start-coturn.sh
 
 # Make the script executable
 RUN chmod +x /scripts/start-coturn.sh
