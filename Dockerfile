@@ -5,7 +5,8 @@ FROM debian:latest
 RUN apt-get update && apt-get install -y \
     coturn \
     certbot \
-    sudo
+    sudo \
+    nginx
 
 # Set the user to root
 USER root
@@ -16,11 +17,34 @@ COPY ./turnserver.conf /etc/coturn/turnserver.conf
 # Create the scripts directory
 RUN mkdir -p /scripts
 
+# Create a directory for the challenge files
+RUN mkdir -p /var/www/certbot
+
+# Generate the Nginx configuration file
+RUN echo 'server {\n\
+    listen 80;\n\
+    server_name frosty-turn.onrender.com;\n\
+\n\
+    location /.well-known/acme-challenge/ {\n\
+        root /var/www/certbot;\n\
+    }\n\
+\n\
+    location / {\n\
+        return 404;\n\
+    }\n\
+}' > /etc/nginx/sites-available/default
+
 # Generate the start-coturn.sh script
 RUN echo '#!/bin/bash\n\
 \n\
+# Start Nginx for Certbot HTTP challenge\n\
+nginx\n\
+\n\
 # Start Certbot to generate/renew certificates\n\
-certbot certonly --standalone --preferred-challenges http -d frosty-turn.onrender.com --agree-tos --email kakaroto79333@gmail.com --non-interactive\n\
+certbot certonly --webroot -w /var/www/certbot -d frosty-turn.onrender.com --agree-tos --email kakaroto79333@gmail.com --non-interactive\n\
+\n\
+# Stop Nginx after Certbot is done\n\
+nginx -s stop\n\
 \n\
 # Start the Coturn server\n\
 turnserver -c /etc/coturn/turnserver.conf --no-cli' > /scripts/start-coturn.sh
