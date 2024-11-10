@@ -1,20 +1,11 @@
-# Use an official Node.js base image (adjust as needed)
-FROM node:16-slim
+# Use the official JioTVGo image from GitHub Container Registry
+FROM ghcr.io/jiotv-go/jiotv_go:latest
 
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the package.json and package-lock.json first (if available)
-COPY package.json package-lock.json* /app/
-
-# Install dependencies
-RUN npm install
-
-# Now copy the rest of the application files
-COPY . /app/
-
-# Expose port 8080 to match your desired port
+# Expose port 8080
 EXPOSE 8080
 
-# Define the command to start the application
-CMD ["npm", "run", "serve", "--", "--public", "--port", "8080"]
+# Set the default command to start the JioTVGo server with the desired options
+CMD ["serve", "--public", "--port", "8080"]
